@@ -24,10 +24,9 @@
         <groupId>org.glassfish.grizzly</groupId>
         <version>2.0.1-SNAPSHOT</version>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
     <artifactId>grizzly-npn-osgi</artifactId>
-
+    <name>Grizzly NPN OSGi</name>
     <description>
         This empty module allows the bootclasspath classes in org.glassfish.grizzly.npn
         to be available via the OSGi classloading mechanisms.
@@ -39,27 +38,26 @@
     <build>
         <plugins>
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <forceCreation>true</forceCreation>
-                    <archive>
-                        <manifestFile>
-                            ${project.build.outputDirectory}/META-INF/MANIFEST.MF
-                        </manifestFile>
-                        <manifestEntries>
-                            <Export-Package>
-org.glassfish.grizzly.npn;version=${project.version},
- sun.security.ssl;version=${project.version}
-                            </Export-Package>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>osgiversion-maven-plugin</artifactId>
+                <version>4.0.1</version>
+                <executions>
+                    <execution>
+                        <id>compute-osgi-version</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>compute-osgi-version</goal>
+                        </goals>
+                        <configuration>
+                            <dropVersionComponent>qualifier</dropVersionComponent>
+                            <versionPropertyName>project.osgi.version</versionPropertyName>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>2.3.5</version>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
@@ -70,13 +68,23 @@ org.glassfish.grizzly.npn;version=${project.version},
                 </executions>
                 <configuration>
                     <instructions>
-                        <Fragment-Host>
-                            system.bundle;extension:=framework
-                        </Fragment-Host>
+                        <Export-Package>
+                            org.glassfish.grizzly.npn;version=${project.osgi.version},
+                            sun.security.ssl;version=${project.osgi.version}
+                        </Export-Package>
+                        <Fragment-Host>system.bundle;extension:=framework</Fragment-Host>
                     </instructions>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <forceCreation>true</forceCreation>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>

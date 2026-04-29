@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2025 Contributors to the Eclipse Foundation.
+    Copyright (c) 2025, 2026 Contributors to the Eclipse Foundation.
     Copyright (c) 2017, 2020 Oracle and/or its affiliates and others.
     All rights reserved.
 
@@ -23,14 +23,21 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>2.0.0-M1</version>
+        <version>2.0.2</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.glassfish.grizzly</groupId>
     <artifactId>grizzly-npn</artifactId>
-    <packaging>pom</packaging>
     <version>2.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Grizzly NPN Project</name>
+    <description>
+        This module interfaces with the TLS implementation of JDK8u252+ to provide an implementation of ALPN.
+        The module was written for use in Grizzly, but is intended as a general purpose solution to allow JDK8u252+
+        based software to use ALPN.
+    </description>
 
     <url>https://projects.eclipse.org/projects/ee4j.glassfish</url>
     <issueManagement>
@@ -48,14 +55,20 @@
     </mailingLists>
     <developers>
         <developer>
-            <id>rlubke</id>
-            <name>Ryan Lubke</name>
-            <email>rlubke@java.net</email>
-            <url>http://blogs.sun.com/rlubke</url>
-            <organization>Oracle Corporation</organization>
-            <organizationUrl>http://www.oracle.com</organizationUrl>
+            <id>eclipse-glassfish-dev</id>
+            <name>GlassFish Development Team</name>
+            <email>glassfish-dev@eclipse.org</email>
+            <organization>Eclipse Foundation</organization>
+            <organizationUrl>https://www.eclipse.org</organizationUrl>
+            <url>https://projects.eclipse.org/projects/ee4j.glassfish/who</url>
         </developer>
     </developers>
+    <contributors>
+        <contributor>
+            <name>GihHub Contributors</name>
+            <url>https://github.com/eclipse-ee4j/orb-gmbal/graphs/contributors</url>
+        </contributor>
+    </contributors>
     <licenses>
         <license>
             <name>Eclipse Public License v. 2.0</name>
@@ -65,32 +78,50 @@
     </licenses>
     <scm>
         <connection>scm:git:git@github.com:eclipse-ee4j/glassfish-grizzly-npn.git</connection>
-        <developerConnection>
-            scm:git:git@github.com:eclipse-ee4j/glassfish-grizzly-npn.git
-        </developerConnection>
+        <developerConnection>scm:git:git@github.com:eclipse-ee4j/glassfish-grizzly-npn.git</developerConnection>
         <url>https://github.com/eclipse-ee4j/glassfish-grizzly-npn</url>
         <tag>HEAD</tag>
     </scm>
-    <organization>
-        <name>Oracle Corporation</name>
-        <url>http://www.oracle.com</url>
-    </organization>
+
+    <properties>
+        <project.build.outputTimestamp>2026-04-28T00:00:00Z</project.build.outputTimestamp>
+    </properties>
+
+    <modules>
+        <module>api</module>
+        <module>osgi</module>
+    </modules>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.15.0</version>
+                    <configuration>
+                        <release>17</release>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>6.0.2</version>
+                    <executions>
+                        <execution>
+                            <id>bundle-manifest</id>
+                            <goals>
+                                <goal>manifest</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
-            <plugin>
-               <groupId>org.glassfish.copyright</groupId>
-               <artifactId>glassfish-copyright-maven-plugin</artifactId>
-               <version>2.4</version>
-               <configuration>
-                  <scm>git</scm>
-                  <scmOnly>true</scmOnly>
-                  <exclude>
-                     <pattern>.md</pattern>
-                     <pattern>LICENSE</pattern>
-                  </exclude>
-               </configuration> 
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -101,7 +132,8 @@
                         <goals>
                             <goal>enforce</goal>
                         </goals>
-                       <configuration>
+                        <phase>validate</phase>
+                        <configuration>
                             <rules>
                                 <requireJavaVersion>
                                     <version>[17,)</version>
@@ -115,19 +147,29 @@
                 </executions>
             </plugin>
             <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.14.1</version>
-                <configuration>
-                    <release>17</release>
-                    <compilerArgument>-Xlint:unchecked,deprecation,fallthrough,finally,cast,dep-ann,empty,overrides</compilerArgument>
-                </configuration>
+               <groupId>org.glassfish.copyright</groupId>
+               <artifactId>glassfish-copyright-maven-plugin</artifactId>
+               <version>2.4</version>
+               <configuration>
+                  <scm>git</scm>
+                  <scmOnly>true</scmOnly>
+                  <exclude>
+                     <pattern>.md</pattern>
+                     <pattern>LICENSE</pattern>
+                  </exclude>
+               </configuration>
             </plugin>
         </plugins>
     </build>
 
-    <modules>
-        <module>api</module>
-        <module>osgi</module>
-    </modules>
-
+    <profiles>
+        <profile>
+            <id>oss-release</id>
+            <properties>
+                <release.projectName>Grizzly NPN</release.projectName>
+                <release.autoPublish>false</release.autoPublish>
+                <release.waitUntil>published</release.waitUntil>
+            </properties>
+        </profile>
+    </profiles>
 </project>
